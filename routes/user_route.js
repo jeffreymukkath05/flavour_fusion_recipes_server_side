@@ -8,6 +8,11 @@ import { connect_db } from "../db/db.js";
 // create a new router instance to define routes separately
 const router = express.Router();
 
+// connect to the database
+const db = await connect_db();
+// get the "users" collection
+const users = db.collection("users");
+
 // helper function to validate email format using regex
 const is_valid_email = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 // helper function to check if a password is strong (minimum 9 characters)
@@ -37,11 +42,6 @@ router.post("/register", async (req, res) => {
   }
 
   try {
-    // connect to the database
-    const db = await connect_db();
-    // get the "users" collection
-    const users = db.collection("users");
-
     // check if a user with the same email already exists
     const existing_user = await users.findOne({
       email: email.toLowerCase(),
@@ -100,11 +100,6 @@ router.post("/login", async (req, res) => {
   }
 
   try {
-    // connect to the database
-    const db = await connect_db();
-    // get the "users" collection
-    const users = db.collection("users");
-
     // find a user with the matching email (case - insensitive)
     const user = await users.findOne({
       email: email.toLowerCase(),
