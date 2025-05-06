@@ -79,5 +79,57 @@ router.post("/register", async (req, res) => {
   }
 });
 
+// define a route to handle user login
+router.post("/login", async (req, res) => {
+  // extract email and password from the request body
+  const { email, password } = req.body;
+
+  // check if both email and password are provided
+  if (!email || !password) {
+    return res.status(400).json({ error: "email and password are required" });
+  }
+
+  // validate email format
+  if (!is_valid_email(email)) {
+    return res.status(400).json({ error: "invalid email format" });
+  }
+
+  // check if the password is a non-empty string
+  if (typeof password !== "string" || password.length < 1) {
+    return res.status(400).json({ error: "password must be provided" });
+  }
+
+  try {
+    // connect to the database
+    const db = await connect_db();
+    // get the "users" collection
+    const users = db.collection("users");
+
+    // find a user with the matching email (case - insensitive)
+    const user = await users.findOne({
+      email: email.toLowerCase(),
+    });
+
+    // check if the user exists and the password matches
+    const password_match =
+      user && (await bcrypt.compare(password, user.password));
+
+    // if no user is found or password doesn't match, return unauthorized error
+    if (!user || !password_match) {
+      return res.status(401).json({ error: "invalid email or password" });
+    }
+
+    // if login is successful, return a success message with the user id
+    res.status(200).json({
+      message: "login successful",
+      user_id: user._id,
+    });
+  } catch (error) {
+    // log any errors and return a server error response
+    console.error("login error:", error);
+    res.status(500).json({ error: "something went wrong" });
+  }
+});
+
 // export the router to use in other parts of the app
 export default router;
