@@ -3,6 +3,7 @@ import express from "express";
 // import and configure environment variables from a .env file
 import "dotenv/config";
 import user_route from "./routes/user_route.js";
+import recipe_route from "./routes/recipe_route.js";
 
 // create an instance of an express application
 const app = express();
@@ -19,6 +20,8 @@ app.get("/", (req, res) => {
 
 // use the user_route module to handle all routes starting with /api/auth
 app.use("/api/auth", user_route);
+// use the recipe_route module to handle all routes starting with /api/recipes
+app.use("/api/recipes", recipe_route);
 
 // start the server and listen on the defined port
 app
